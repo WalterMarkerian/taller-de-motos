@@ -16,7 +16,7 @@ public interface MotocicletaMapper {
 
     // Mapea de Motocicleta a MotocicletaDTO
     @Mapping(source = "motocicletaId", target = "motocicletaId")
-    @Mapping(source = "dominio", target = "patente")
+    @Mapping(source = "dominio", target = "dominio")
     @Mapping(source = "marca", target = "marca")
     @Mapping(source = "modelo", target = "modelo")
     @Mapping(source = "cilindrada", target = "cilindrada")
@@ -29,7 +29,7 @@ public interface MotocicletaMapper {
 
     // Mapea de MotocicletaDTO a Motocicleta
     @Mapping(source = "motocicletaId", target = "motocicletaId")
-    @Mapping(source = "patente", target = "dominio")
+    @Mapping(source = "dominio", target = "dominio")
     @Mapping(source = "marca", target = "marca")
     @Mapping(source = "modelo", target = "modelo")
     @Mapping(source = "cilindrada", target = "cilindrada")

@@ -3,12 +3,10 @@ package com.tallerDeMotos.cliente.application.create;
 import com.tallerDeMotos.cliente.domain.dto.ClienteDTO;
 import com.tallerDeMotos.cliente.domain.entity.Cliente;
 import com.tallerDeMotos.cliente.domain.exception.ClienteDuplicateDniException;
-import com.tallerDeMotos.cliente.domain.exception.ClienteNotFoundException;
 import com.tallerDeMotos.cliente.infrastructure.mapper.ClienteMapper;
 import com.tallerDeMotos.cliente.infrastructure.repository.ClienteRepository;
 import com.tallerDeMotos.motocicletas.domain.dto.MotocicletaDTO;
 import com.tallerDeMotos.motocicletas.domain.entity.Motocicleta;
-import com.tallerDeMotos.motocicletas.domain.exception.MotocicletaDuplicatePatenteException;
 import com.tallerDeMotos.motocicletas.infrastructure.mapper.MotocicletaMapper;
 import com.tallerDeMotos.motocicletas.infrastructure.repository.MotocicletaRepository;
 import com.tallerDeMotos.ordenDeTrabajo.domain.dto.OrdenDeTrabajoDTO;
@@ -16,6 +14,7 @@ import com.tallerDeMotos.ordenDeTrabajo.domain.entity.OrdenDeTrabajo;
 import com.tallerDeMotos.ordenDeTrabajo.infrastructure.mapper.OrdenDeTrabajoMapper;
 import com.tallerDeMotos.ordenDeTrabajo.infrastructure.repository.OrdenDeTrabajoRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class ClienteCreatorImpl implements ClienteCreator{
@@ -42,6 +41,7 @@ public class ClienteCreatorImpl implements ClienteCreator{
     }
 
     @Override
+    @Transactional
     public ClienteDTO createCliente(ClienteDTO clienteDTO) throws ClienteDuplicateDniException {
         // Verificar si el DNI del cliente ya existe
         if (clienteRepository.existsByDni(clienteDTO.getDni())) {
@@ -58,25 +58,25 @@ public class ClienteCreatorImpl implements ClienteCreator{
         if (clienteDTO.getMotocicletas() != null) {
             for (MotocicletaDTO motocicletaDTO : clienteDTO.getMotocicletas()) {
                 // Convertir el DTO de motocicleta a entidad persistente
-                Motocicleta motocicletaEntity = motocicletaMapper.toEntity(motocicletaDTO);
+                Motocicleta motocicleta = motocicletaMapper.toEntity(motocicletaDTO);
 
                 // Asignar el cliente al que pertenece la motocicleta
-                motocicletaEntity.setCliente(cliente);
+                motocicleta.setCliente(cliente);
 
                 // Guardar la motocicleta
-                motocicletaRepository.save(motocicletaEntity);
+                motocicletaRepository.save(motocicleta);
 
                 // Crear las órdenes de trabajo asociadas a la motocicleta
                 if (motocicletaDTO.getOrdenesDeTrabajo() != null) {
                     for (OrdenDeTrabajoDTO ordenDeTrabajoDTO : motocicletaDTO.getOrdenesDeTrabajo()) {
                         // Convertir el DTO de la orden de trabajo a entidad
-                        OrdenDeTrabajo ordenDeTrabajoEntity = ordenDeTrabajoMapper.toEntity(ordenDeTrabajoDTO);
+                        OrdenDeTrabajo ordenDeTrabajo = ordenDeTrabajoMapper.toEntity(ordenDeTrabajoDTO);
 
                         // Asignar la motocicleta a la orden de trabajo
-                        ordenDeTrabajoEntity.setMotocicleta(motocicletaEntity);
+                        ordenDeTrabajo.setMotocicleta(motocicleta);
 
                         // Guardar la orden de trabajo
-                        ordenDeTrabajoRepository.save(ordenDeTrabajoEntity);
+                        ordenDeTrabajoRepository.save(ordenDeTrabajo);
                     }
                 }
             }

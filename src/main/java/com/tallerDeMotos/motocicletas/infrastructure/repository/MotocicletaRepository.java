@@ -6,11 +6,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
 
-public interface MotocicletaRepository extends JpaRepository<Motocicleta, Long> {
-//    void deleteByPatente(String patente);
-//
-//    Optional<Motocicleta> findByPatente(String patente);
-//
-//    boolean existsByPatente(String patente);
+public interface MotocicletaRepository extends JpaRepository<Motocicleta, String> {
 
-}
+    boolean existsByDominio(String dominio);
+    boolean existsByMotocicletaId(Long motocicletaId);
+    Optional<Motocicleta> findByMotocicletaId(Long motocicletaId);}

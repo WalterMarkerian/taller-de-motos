@@ -30,6 +30,6 @@ public class Cliente {
     private String domicilio;
 
     // Relación uno a muchos con Motocicleta
-    @OneToMany(mappedBy = "cliente", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "cliente", cascade = CascadeType.MERGE, fetch = FetchType.LAZY)
     private List<Motocicleta> motocicletas;
 }

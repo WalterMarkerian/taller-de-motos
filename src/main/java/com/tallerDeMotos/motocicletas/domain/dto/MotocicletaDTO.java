@@ -20,10 +20,10 @@ public class MotocicletaDTO {
     @JsonProperty(value = "motocicletaId")
     @NotNull(message = "El id es requerido.")
     Long motocicletaId;
-    @Schema(description = "Patente de la moto", requiredMode = Schema.RequiredMode.REQUIRED, example = "AAA000")
-    @JsonProperty(value = "patente", required = true)
-    @NotBlank(message = "La patente es requerida.")
-    String patente;
+    @Schema(description = "Dominio de la moto", requiredMode = Schema.RequiredMode.REQUIRED, example = "AAA000")
+    @JsonProperty(value = "dominio", required = true)
+    @NotBlank(message = "La dominio es requerida.")
+    String dominio;
     @Schema(description = "Marca de la moto", requiredMode = Schema.RequiredMode.REQUIRED, example = "YAMAHA")
     @JsonProperty(value = "marca", required = true)
     @NotBlank(message = "La marca de la moto es requerida.")
