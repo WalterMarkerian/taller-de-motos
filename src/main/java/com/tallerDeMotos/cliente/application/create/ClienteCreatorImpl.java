@@ -7,6 +7,7 @@ import com.tallerDeMotos.cliente.infrastructure.mapper.ClienteMapper;
 import com.tallerDeMotos.cliente.infrastructure.repository.ClienteRepository;
 import com.tallerDeMotos.motocicletas.domain.dto.MotocicletaDTO;
 import com.tallerDeMotos.motocicletas.domain.entity.Motocicleta;
+import com.tallerDeMotos.motocicletas.domain.exception.MotocicletaDominioDuplicatedException;
 import com.tallerDeMotos.motocicletas.infrastructure.mapper.MotocicletaMapper;
 import com.tallerDeMotos.motocicletas.infrastructure.repository.MotocicletaRepository;
 import com.tallerDeMotos.ordenDeTrabajo.domain.dto.OrdenDeTrabajoDTO;
@@ -15,6 +16,8 @@ import com.tallerDeMotos.ordenDeTrabajo.infrastructure.mapper.OrdenDeTrabajoMapp
 import com.tallerDeMotos.ordenDeTrabajo.infrastructure.repository.OrdenDeTrabajoRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Optional;
 
 @Service
 public class ClienteCreatorImpl implements ClienteCreator{
@@ -42,12 +45,14 @@ public class ClienteCreatorImpl implements ClienteCreator{
 
     @Override
     @Transactional
-    public ClienteDTO createCliente(ClienteDTO clienteDTO) throws ClienteDuplicateDniException {
-        // Verificar si el DNI del cliente ya existe
-        if (clienteRepository.existsByDni(clienteDTO.getDni())) {
-            throw new ClienteDuplicateDniException();
-        }
+    public ClienteDTO createCliente(ClienteDTO clienteDTO) throws ClienteDuplicateDniException, MotocicletaDominioDuplicatedException {
 
+        // Validar si el cliente con el mismo DNI ya existe
+        Optional<Cliente> existingCliente = clienteRepository.findByDni(clienteDTO.getDni());
+        if (existingCliente.isPresent()) {
+            String customMessage = "El cliente con el DNI " + clienteDTO.getDni() + " ya existe.";
+            throw new ClienteDuplicateDniException(customMessage);  // Pasamos el mensaje personalizado
+        }
         // Convertir el DTO de cliente a entidad de dominio (Cliente)
         Cliente cliente = clienteMapper.toEntity(clienteDTO);
 
@@ -57,7 +62,13 @@ public class ClienteCreatorImpl implements ClienteCreator{
         // Crear las motocicletas asociadas al cliente
         if (clienteDTO.getMotocicletas() != null) {
             for (MotocicletaDTO motocicletaDTO : clienteDTO.getMotocicletas()) {
-                // Convertir el DTO de motocicleta a entidad persistente
+                // Validar si ya existe una motocicleta con el mismo dominio
+                Optional<Motocicleta> existingMotocicleta = motocicletaRepository.findMotocicletaByDominio(motocicletaDTO.getDominio());
+                if (existingMotocicleta.isPresent()) {
+                    throw new MotocicletaDominioDuplicatedException();  // Excepción personalizada para dominio duplicado
+                }
+
+                    // Convertir el DTO de motocicleta a entidad persistente
                 Motocicleta motocicleta = motocicletaMapper.toEntity(motocicletaDTO);
 
                 // Asignar el cliente al que pertenece la motocicleta

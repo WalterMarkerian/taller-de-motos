@@ -4,6 +4,7 @@ import com.tallerDeMotos.cliente.application.create.ClienteCreator;
 import com.tallerDeMotos.cliente.domain.dto.ClienteDTO;
 import com.tallerDeMotos.cliente.domain.exception.ClienteDuplicateDniException;
 import com.tallerDeMotos.cliente.domain.exception.ClienteNotFoundException;
+import com.tallerDeMotos.cliente.infrastructure.repository.ClienteRepository;
 import com.tallerDeMotos.motocicletas.domain.exception.MotocicletaDominioDuplicatedException;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -18,24 +19,23 @@ import org.springframework.web.bind.annotation.RestController;
 public class ClienteController {
 
     private final ClienteCreator clienteCreator;
+    private final ClienteRepository clienteRepository;
 
     // Inyección por constructor de las dependencias
-    public ClienteController(ClienteCreator clienteCreator) {
+    public ClienteController(ClienteCreator clienteCreator, ClienteRepository clienteRepository) {
         this.clienteCreator = clienteCreator;
+        this.clienteRepository = clienteRepository;
     }
 
     // Endpoint para crear un cliente
     @PostMapping
-    public ResponseEntity<ClienteDTO> createCliente(@RequestBody ClienteDTO clienteDTO) {
-        try {
-            ClienteDTO createdCliente = clienteCreator.createCliente(clienteDTO);
-            return new ResponseEntity<>(createdCliente, HttpStatus.CREATED);
-        } catch (ClienteDuplicateDniException e) {
-            return new ResponseEntity<>(HttpStatus.CONFLICT); // 409 Conflict si el DNI ya existe
-        } catch (MotocicletaDominioDuplicatedException e) {
-            throw new RuntimeException(e);
-        } catch (ClienteNotFoundException e) {
-            throw new RuntimeException(e);
+    public ResponseEntity<ClienteDTO> createCliente(@Valid @RequestBody ClienteDTO clienteDTO) throws ClienteNotFoundException, ClienteDuplicateDniException, MotocicletaDominioDuplicatedException {
+        // Validación para evitar duplicados
+        if(clienteRepository.existsByDni(clienteDTO.getDni())) {
+            throw new ClienteDuplicateDniException();
         }
+        ClienteDTO createdCliente = clienteCreator.createCliente(clienteDTO);
+            return new ResponseEntity<>(createdCliente, HttpStatus.CREATED);
+
     }
 }

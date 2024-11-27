@@ -14,8 +14,8 @@ public class BaseException extends Exception {
         this.code = code;
     }
 
-    public BaseException(String message) {
-        super(message);
-        this.code = "ERR_UNKNOWN"; // Código de error genérico
+    public BaseException(String code) {
+        super(code);  // Si no se pasa el mensaje, usar el código del error como mensaje por defecto
+        this.code = code;
     }
 }

@@ -10,4 +10,8 @@ public interface MotocicletaRepository extends JpaRepository<Motocicleta, String
 
     boolean existsByDominio(String dominio);
     boolean existsByMotocicletaId(Long motocicletaId);
-    Optional<Motocicleta> findByMotocicletaId(Long motocicletaId);}
+    Optional<Motocicleta> findByMotocicletaId(Long motocicletaId);
+
+    Optional<Motocicleta> findMotocicletaByDominio(String dominio);
+
+}
