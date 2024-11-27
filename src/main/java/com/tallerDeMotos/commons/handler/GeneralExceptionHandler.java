@@ -31,33 +31,19 @@ import java.util.Locale;
 @RequiredArgsConstructor
 public class GeneralExceptionHandler {
 //    private final ApiErrorMapper errorMapper;
-    @Autowired
-    private final MessageSource messageSource;
+private final MessageSource messageSource;
 
     private ApiError buildGeneralResponse(BaseException e, HttpServletRequest request) {
         String exceptionName = e.getClass().getSimpleName();
         String completePath = request.getMethod().concat(":").concat(request.getRequestURI());
-
-        // Intentamos obtener el mensaje desde el archivo .properties sin usar locale
-        String errorMessage = null;
-        try {
-            // Obtener el mensaje directamente, sin utilizar locale
-            errorMessage = messageSource.getMessage(e.getCode() + "_MESSAGE", null, e.getMessage(), null);
-        } catch (Exception ex) {
-            // Si no se encuentra el mensaje, usamos el mensaje por defecto
-            errorMessage = e.getMessage();
-            log.debug("No se encontró mensaje para el código de error " + e.getCode() + "_MESSAGE, usando mensaje por defecto.");
-        }
-
-        // Obtener el código de error (sin usar locale)
-        String errorCode = messageSource.getMessage(e.getCode() + "_CODE", null, e.getCode(), null);
+        String errorMessage = messageSource.getMessage(e.getCode() + "_MESSAGE", null, e.getMessage(), LocaleContextHolder.getLocale());
+        String errorCode = messageSource.getMessage(e.getCode() + "_CODE", null, e.getCode(), LocaleContextHolder.getLocale());
         log.error("Unable to run the requested operation: " + completePath, e);
-
         return ApiError.builder()
                 .timestamp(LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME))
                 .error(exceptionName)
                 .code(errorCode)
-                .message(errorMessage)  // Aquí usamos el mensaje obtenido del archivo .properties o el mensaje por defecto
+                .message(errorMessage)
                 .detailedMessage(e.getMessage())
                 .path(completePath)
                 .build();
